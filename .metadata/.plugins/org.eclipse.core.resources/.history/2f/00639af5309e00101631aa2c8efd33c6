@@ -1,0 +1,5 @@
+package com.gym.reservation.service;
+
+public class GymEndpoint {
+
+}

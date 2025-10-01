@@ -1,0 +1,15 @@
+eclipse.preferences.version=1
+org.springframework.ide.eclipse.boot.wizard.PopularityTracker.web=1
+org.springframework.ide.eclipse.boot.wizard.PopularityTracker.web-services=1
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.artifactId=gym-reservation-service
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.bootVersion=3.5.6
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.description=Contiene la funcionalidad de gesti\u00F3n de reservaciones de clases y/o actividades dentro de un gimnasio por parte de los clientes.
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.groupId=com.example
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.javaVersion=21
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.language=java
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.name=gym-reservation-service
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.packageName=com.gym.reservation
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.packaging=jar
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.type=MAVEN
+org.springframework.ide.eclipse.boot.wizard.PreferredSelections.version=1.0
+org.springframework.ide.eclipse.boot.wizard.initializr.url=https\://start.spring.io\n
