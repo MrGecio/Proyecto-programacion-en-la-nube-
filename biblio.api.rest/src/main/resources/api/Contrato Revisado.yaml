@@ -1,0 +1,424 @@
+openapi: 3.0.4
+info:
+  title: Biblioteca NubeTec API
+  description: API REST para la gestión de la biblioteca NubeTec
+  version: 1.0.0
+  contact:
+    name: ITQ distributed and cloud systems
+    email: ivonne.al@queretaro.tecnm.mx
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Servidor de desarrollo
+  - url: https://api.nubetec.com/api/v1
+    description: Servidor de producción
+
+tags:
+  - name: Usuarios
+    description: Operaciones relacionadas con el registro y consulta de usuarios.
+  - name: Libros
+    description: Operaciones para la consulta del catálogo de libros.
+  - name: Prestamos
+    description: Operaciones transaccionales para crear, devolver y renovar préstamos.
+  - name: Reservas
+    description: Operaciones para la gestión de reservas de libros.
+
+paths:
+  /usuarios:
+    post:
+      summary: Registrar un nuevo usuario
+      description: Da de alta nuevos usuarios en el sistema (estudiantes o docentes).
+      operationId: registrarUsuario
+      tags:
+        - Usuarios
+      requestBody:
+        description: Datos del usuario a crear.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsuarioInput'
+      responses:
+        '201':
+          description: Usuario creado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+              example:
+                usuarioId: 1001
+                nombre: "Kevin Hernández Cuestas"
+                tipo: "ESTUDIANTE"
+        '400':
+          description: Datos de entrada inválidos (p.ej., tipo incorrecto).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /usuarios/{usuarioId}/prestamos:
+    get:
+      summary: Consultar historial de préstamos de un usuario
+      description: Obtiene la lista de préstamos (activos e históricos) de un usuario específico.
+      operationId: getHistorialUsuario
+      tags:
+        - Usuarios
+      parameters:
+        - name: usuarioId
+          in: path
+          description: ID del usuario a consultar.
+          required: true
+          schema:
+            type: integer
+            example: 1001
+      responses:
+        '200':
+          description: Lista de préstamos del usuario.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Prestamo'
+        '404':
+          description: Usuario no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /libros:
+    get:
+      summary: Consultar catálogo de libros
+      description: Busca libros en el catálogo por ISBN, título, autor o categoría.
+      operationId: buscarLibros
+      tags:
+        - Libros
+      parameters:
+        - name: isbn
+          in: query
+          description: Consultar por ISBN.
+          required: false
+          schema:
+            type: string
+            example: "978-3-16-148410-0"
+        - name: titulo
+          in: query
+          description: Consultar por título.
+          required: false
+          schema:
+            type: string
+            example: "Sistemas Distribuidos"
+        - name: autor
+          in: query
+          description: Consultar por autor.
+          required: false
+          schema:
+            type: string
+            example: "Andrew Tanenbaum"
+        - name: categoria
+          in: query
+          description: Consultar por categoría.
+          required: false
+          schema:
+            type: string
+            example: "Informática"
+      responses:
+        '200':
+          description: Lista de libros encontrados (puede estar vacía).
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Libro'
+        '400':
+          description: Parámetros de búsqueda inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /prestamos:
+    post:
+      summary: Crear un nuevo préstamo
+      description: Registra un nuevo préstamo asociando un usuario y un libro.
+      operationId: crearPrestamo
+      tags:
+        - Prestamos
+      requestBody:
+        description: IDs del usuario que solicita y del libro a prestar.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrestamoInput'
+      responses:
+        '201':
+          description: Préstamo creado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prestamo'
+        '404':
+          description: Usuario o Libro no encontrado (o sin ejemplares disponibles).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /prestamos/{prestamoId}/devolver:
+    post:
+      summary: Devolver un préstamo
+      description: Marca un préstamo existente como DEVUELTO.
+      operationId: devolverPrestamo
+      tags:
+        - Prestamos
+      parameters:
+        - name: prestamoId
+          in: path
+          description: ID del préstamo a devolver.
+          required: true
+          schema:
+            type: integer
+            example: 5001
+      responses:
+        '200':
+          description: Préstamo devuelto exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prestamo'
+        '404':
+          description: Préstamo no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /prestamos/{prestamoId}/renovar:
+    post:
+      summary: Renovar un préstamo
+      description: Extiende la fecha de devolución de un préstamo activo.
+      operationId: renovarPrestamo
+      tags:
+        - Prestamos
+      parameters:
+        - name: prestamoId
+          in: path
+          description: ID del préstamo a renovar.
+          required: true
+          schema:
+            type: integer
+            example: 5001
+      responses:
+        '200':
+          description: Préstamo renovado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prestamo'
+        '404':
+          description: Préstamo no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Conflicto - No se puede renovar porque existen reservas pendientes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /reservas:
+    post:
+      summary: Crear una nueva reserva
+      description: Crea una reserva para un libro que no tiene ejemplares disponibles.
+      operationId: crearReserva
+      tags:
+        - Reservas
+      requestBody:
+        description: IDs del usuario que solicita y del libro a reservar.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservaInput'
+      responses:
+        '201':
+          description: Reserva creada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserva'
+        '404':
+          description: Usuario o Libro no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '409':
+          description: Conflicto - El libro aún tiene ejemplares disponibles (no requiere reserva).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+components:
+  schemas:
+
+    Libro:
+      type: object
+      description: Representa un libro en el catálogo.
+      properties:
+        isbn:
+          type: string
+          description: Identificador único del libro (ISBN).
+        titulo:
+          type: string
+          description: Título del libro.
+        autor:
+          type: string
+          description: Autor del libro.
+        categoria:
+          type: string
+          description: Categoría a la que pertenece el libro.
+        ejemplaresTotales:
+          type: integer
+          description: Número total de ejemplares de este libro.
+        ejemplaresDisponibles:
+          type: integer
+          description: Número de ejemplares actualmente disponibles para préstamo.
+
+    Usuario:
+      type: object
+      description: Representa un usuario del sistema (estudiante o docente).
+      properties:
+        usuarioId:
+          type: integer
+          description: Identificador único del usuario.
+        nombre:
+          type: string
+          description: Nombre completo del usuario.
+        tipo:
+          type: string
+          description: Tipo de usuario.
+          enum: [ESTUDIANTE, DOCENTE]
+
+    Prestamo:
+      type: object
+      description: Modela la transacción de un préstamo.
+      properties:
+        prestamoId:
+          type: integer
+          description: Identificador único de la transacción de préstamo.
+        isbnLibro:
+          type: string
+          description: ISBN del libro prestado.
+        usuarioId:
+          type: integer
+          description: ID del usuario que tiene el préstamo.
+        fechaPrestamo:
+          type: string
+          format: date
+          description: Fecha en que se realizó el préstamo.
+        fechaDevolucionPrevista:
+          type: string
+          format: date
+          description: Fecha límite para la devolución del libro.
+        estado:
+          type: string
+          description: Estado actual del préstamo.
+          enum: [ACTIVO, DEVUELTO, RENOVADO]
+
+    Reserva:
+      type: object
+      description: Modela una reserva para un libro no disponible.
+      properties:
+        reservaId:
+          type: integer
+          description: Identificador único de la reserva.
+        isbnLibro:
+          type: string
+          description: ISBN del libro que se desea reservar.
+        usuarioId:
+          type: integer
+          description: ID del usuario que realiza la reserva.
+        fechaReserva:
+          type: string
+          format: date
+          description: Fecha en que se solicita la reserva.
+        estado:
+          type: string
+          description: Estado actual de la reserva.
+          enum: [PENDIENTE, COMPLETADA]
+
+    UsuarioInput:
+      type: object
+      description: Datos para registrar un nuevo usuario (sin ID).
+      required:
+        - nombre
+        - tipo
+      properties:
+        nombre:
+          type: string
+          description: Nombre completo del usuario.
+          example: "Natalie Martinez Mireles"
+        tipo:
+          type: string
+          description: Tipo de usuario.
+          enum: [ESTUDIANTE, DOCENTE]
+          example: "DOCENTE"
+
+    PrestamoInput:
+      type: object
+      description: Datos para crear un nuevo préstamo.
+      required:
+        - usuarioId
+        - isbnLibro
+      properties:
+        usuarioId:
+          type: integer
+          description: ID del usuario que solicita el préstamo.
+          example: 1001
+        isbnLibro:
+          type: string
+          description: ISBN del libro a prestar.
+          example: "9783161484100"
+
+    ReservaInput:
+      type: object
+      description: Datos para crear una nueva reserva.
+      required:
+        - usuarioId
+        - isbnLibro
+      properties:
+        usuarioId:
+          type: integer
+          description: ID del usuario que solicita la reserva.
+          example: 1002
+        isbnLibro:
+          type: string
+          description: ISBN del libro a reservar.
+          example: "9780136006468"
+
+
+    ApiError:
+      type: object
+      description: Respuesta de error estándar
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Código de error
+          example: "RESERVAS_PENDIENTES"
+        message:
+          type: string
+          description: Mensaje de error legible
+          example: "No se puede renovar el préstamo, existen reservas pendientes."

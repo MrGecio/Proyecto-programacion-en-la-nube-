@@ -1,0 +1,40 @@
+openapi: 3.0.4
+
+
+info:	
+  title: Gym Reservation API           # Nombre de tu API
+  description: API REST para gestión de reservas de gimnasio
+  version: 1.0.0                      # Versión de tu API
+  contact:
+    name: ITQ distributed and cloud systems
+    email: ivonne.al@queretaro.tecnm.mx
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+
+	servers:
+		# los serviodres seran arregfloa de dodnde estemos trabajando
+		#Todos tendran dos campos la url del servidor y la descripcion de que tipo de servidor tenemos
+	  - url: http://localhost:8080/api/v1
+	    description: Servidor de desarrollo
+	  - url: https://api.gym.com/api/v1
+	  #a partir de la url base podemos accder al resto de rutas 
+	    description: Servidor de producción
+		
+	tags:
+		- name: Reservations
+		  description: Operaciones relacionadas con reservas del gimnasio
+			
+	paths:
+		    /reservations:    # Ruta del endpoint
+		      post:           # Método HTTP
+		        summary: Crear nueva reserva
+		        description: Crea una nueva reserva en el gimnasio
+		        operationId: createReservation    # ID único para generación de código
+		        tags:
+		          - Reservations                  # Asociamos con el tag creado
+				  
+				  
+				  
+				  
+				  
